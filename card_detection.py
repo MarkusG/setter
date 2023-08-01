@@ -1,17 +1,6 @@
 import cv2 as cv
 import numpy as np
 # import matplotlib.pyplot as plt
-import os
-
-
-def draw_histogram(array):
-    os.system('clear')
-    for i in range(50):
-        print("{0: >2d}: ".format(i), end='')
-        for j in array:
-            if j == i:
-                print("#", end='')
-        print()
 
 
 # given an index in the hierarchy, returns an array of all the contours at the
@@ -96,8 +85,6 @@ def recognize_cards(frame):
             approx = cv.approxPolyDP(contours[s], epsilon, True)
             polyPoints.append(len(approx))
 
-    draw_histogram(polyPoints)
-
     out = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
     for c in cards:
         cv.drawContours(out, contours, c, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
@@ -105,7 +92,13 @@ def recognize_cards(frame):
             cv.drawContours(out, contours, s, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
             epsilon = 0.005 * cv.arcLength(contours[s], True)
             approx = cv.approxPolyDP(contours[s], epsilon, True)
-            cv.drawContours(out, [approx], 0, (0, 0, 255), 1, cv.LINE_8)
+            if len(approx) < 11:
+                color = (0, 0, 255)
+            elif len(approx) < 15:
+                color = (0, 255, 0)
+            else:
+                color = (255, 0, 0)
+            cv.drawContours(out, [approx], 0, color, 1, cv.LINE_8)
 
     cv.imshow("", out)
 

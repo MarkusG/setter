@@ -97,3 +97,7 @@ data on it. I'll just draw it in the terminal.
 My love of histograms has misled me. I might as well just try to classify the
 shapes and highlight them in the video output accordingly, and then I can see
 how accurate the polygon method is.
+
+It's not very accurate. The squiggles can be consistently identified, but
+diamonds and pills are a total toss-up. Maybe I can tweak the parameters and
+make it more reliable.
