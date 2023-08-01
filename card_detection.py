@@ -2,6 +2,7 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 # given an index in the hierarchy, returns an array of all the contours at the
 # same hierarchy level
 def get_neighbors(idx, hierarchy):
@@ -15,7 +16,7 @@ def get_neighbors(idx, hierarchy):
     while hierarchy[0][cursor][0] >= 0:
         neighbors.append(hierarchy[0][cursor][0])
         cursor = hierarchy[0][cursor][0]
-    
+
     # go backward from top_idx
     cursor = idx
     while hierarchy[0][cursor][1] >= 0:
@@ -24,28 +25,29 @@ def get_neighbors(idx, hierarchy):
 
     return neighbors
 
+
 # load the image as grayscale
 src = cv.imread("set.png", cv.IMREAD_GRAYSCALE)
-cv.imshow("", src)
-cv.waitKey()
+# cv.imshow("", src)
+# cv.waitKey()
 
 # detect edges
 canny_output = cv.Canny(src, 100, 200)
-cv.imshow("", canny_output)
-cv.waitKey()
+# cv.imshow("", canny_output)
+# cv.waitKey()
 
 # find contours
 contours, hierarchy = cv.findContours(canny_output, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 out = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
 
 # show histogram of contour areas
-#areas = []
-#for c in contours:
-#    areas.append(cv.contourArea(c))
+# areas = []
+# for c in contours:
+#     areas.append(cv.contourArea(c))
 #
-#fig, axs = plt.subplots(tight_layout=True)
-#axs.hist(areas, bins=20)
-#plt.show()
+# fig, axs = plt.subplots(tight_layout=True)
+# axs.hist(areas, bins=20)
+# plt.show()
 
 # get the index of a top-level contour (i.e. a card outline)
 top_idx = 0
@@ -78,11 +80,24 @@ for i in card_idxs:
             cards[i].append(j)
         break
 
+polyPoints = []
 for c in cards:
-    cv.drawContours(out, contours, c, (255, 255, 255), 2, cv.LINE_8, hierarchy, 0)
-    cv.imshow("", out)
-    cv.waitKey()
     for s in cards[c]:
-        cv.drawContours(out, contours, s, (255, 255, 255), 2, cv.LINE_8, hierarchy, 0)
-        cv.imshow("", out)
-        cv.waitKey()
+        epsilon = 0.006 * cv.arcLength(contours[s], True)
+        approx = cv.approxPolyDP(contours[s], epsilon, True)
+        polyPoints.append(len(approx))
+
+# show histogram of contour areas
+fig, axs = plt.subplots(tight_layout=True)
+axs.hist(polyPoints, bins=20)
+plt.show()
+
+for c in cards:
+    cv.drawContours(out, contours, c, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
+    for s in cards[c]:
+        cv.drawContours(out, contours, s, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
+        epsilon = 0.005 * cv.arcLength(contours[s], True)
+        approx = cv.approxPolyDP(contours[s], epsilon, True)
+        cv.drawContours(out, [approx], 0, (0, 0, 255), 1, cv.LINE_8)
+
+cv.imshow("", out)

@@ -7,9 +7,6 @@
 4. something else to determine count and shape
 5. Or perhaps just use Hough Ballard with a template for every card
  * This will probably be extremely slow, as we'd have to check against a template for all 81 cards in the game
-6. Or we use a generalized contour detector to pick out the shapes
- * If shapes have distinct enough areas, we can use contour area to distinguish them
-  * This would fail if the cards were of different sizes in the image (e.g. if the cards were to be held at different distances from the camera). Let's decide to assume that they won't be and not care.
 
 Card outline detection:
 
@@ -77,3 +74,17 @@ It worked. And I think it solves our ownership issues too. I am 99% sure that
 the hierarchy is in fact a tree structure, and we don't have to worry about
 shapes from different cards getting mixed together. I'm going to whip up a quick
 dummy image in GIMP to make sure.
+
+Now for shape recognition. Let's see if the perimeters of each shape are
+distinct enough to determine which is which. Oh yeah, it's histogram time again.
+
+Well, the perimeters are too similar between shapes to be useful, as are the
+areas. Onto other methods.
+
+It looks like polygon approximation of each shape could be promising. If we
+set the epsilon correctly, the number of points needed to approximate the
+contour could tell us what kind of shape it is. Histogram time again.
+
+It looks like an epsilon of 0.6% of the arc length gives us good enough data
+*for this test image*. I'll have to see later on how it behaves on a more varied
+data set.
