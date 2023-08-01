@@ -50,7 +50,30 @@ based on hierarchy data (I doubt we can), we should still get a set of contours
 that's 1:1 with the actual shapes on the cards. We can check if a point on a
 shape contour is inside a card to determine ownership.
 
-Wow, that was completely wrong. THe whole point of this is that we have
+Wow, that was completely wrong. The whole point of this is that we have
 duplicate *nested* contours for everything, including card outlines. So the
 contours that are one level down from the top will most likely be duplicate card
 outlines, of which we have an unknown number.
+
+Okay, so here's what we're gonna do: We'll fall back on area analysis. Let's
+assume that, in our iamge, the card outlines are all roughly identical in area.
+Under this assumption, for each card, we can walk down the hierarchy until we
+find a contour with a significantly lesser area than that of a card outline.
+That will be our shape outline, and then its neighbors should be the remaining
+shapes on the card.
+
+Just for fun, I plotted a histogram of all the contour areas to confirm that,
+indeed, there is a large gap between our card outline areas and shape outline
+areas. This is kind of obvious, but I just wanted to plot a histogram, okay?
+I was also thinking this might give me an idea of how close two areas need to be
+to be considered similar (e.g. +/- 5000 square units), but this will depend on
+the image size, so it should be relative anyway.
+
+Ooh! Maybe we can identify which shapes are which by contour perimeter, or by
+approximating them to polygons. I'll worry about that once I'm done actually
+getting the shape outlines.
+
+It worked. And I think it solves our ownership issues too. I am 99% sure that
+the hierarchy is in fact a tree structure, and we don't have to worry about
+shapes from different cards getting mixed together. I'm going to whip up a quick
+dummy image in GIMP to make sure.
