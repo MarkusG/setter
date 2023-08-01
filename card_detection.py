@@ -1,6 +1,17 @@
 import cv2 as cv
 import numpy as np
 # import matplotlib.pyplot as plt
+import os
+
+
+def draw_histogram(array):
+    os.system('clear')
+    for i in range(50):
+        print("{0: >2d}: ".format(i), end='')
+        for j in array:
+            if j == i:
+                print("#", end='')
+        print()
 
 
 # given an index in the hierarchy, returns an array of all the contours at the
@@ -81,16 +92,19 @@ def recognize_cards(frame):
     polyPoints = []
     for c in cards:
         for s in cards[c]:
-            epsilon = 0.006 * cv.arcLength(contours[s], True)
+            epsilon = cv.getTrackbarPos("epsilon", "output") / 100
             approx = cv.approxPolyDP(contours[s], epsilon, True)
             polyPoints.append(len(approx))
+
+    draw_histogram(polyPoints)
 
     out = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
     for c in cards:
         cv.drawContours(out, contours, c, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
         for s in cards[c]:
             cv.drawContours(out, contours, s, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
-            epsilon = 0.005 * cv.arcLength(contours[s], True)
+            # epsilon = 0.005 * cv.arcLength(contours[s], True)
+            epsilon = cv.getTrackbarPos("epsilon", "output") / 100
             approx = cv.approxPolyDP(contours[s], epsilon, True)
             if len(approx) < 11:
                 color = (0, 0, 255)
@@ -100,8 +114,15 @@ def recognize_cards(frame):
                 color = (255, 0, 0)
             cv.drawContours(out, [approx], 0, color, 1, cv.LINE_8)
 
-    cv.imshow("", out)
+    cv.imshow("output", out)
 
+
+def nothing(x):
+    pass
+
+
+cv.namedWindow("output")
+cv.createTrackbar("epsilon", "output", 0, 300, nothing)
 
 while True:
     cap = cv.VideoCapture("/dev/video2")
