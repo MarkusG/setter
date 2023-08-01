@@ -28,4 +28,29 @@ shapes. This won't work for shapes though, as there will be a variable number of
 shapes with the same area. We'll need to determine duplicity by the points of
 the contours themselves, which I don't think will be too hard.
 
+Actually, we don't even need to worry about determining similarity. We have
+hierarchy data, and we're only concerned about two hierarchical levels - the
+top one (where the card outlines lie) and the bottom one (where the shape
+outlines lie). Thus, we should have exactly 12 card outlines at the top
+hierarchy level, and a variable (but correct) number of shape outlines at the
+bottom level.
 
+Success! We can successfully determine which contours are card outlines based on
+the fact that they're at the top of the hierarchy. Let's see if a similar method
+is possible for the shape outlines. One problem could be that the "bottom" of
+the hierarchy may not contain all the shape outlines, as different shapes may
+have different numbers of duplicate outlines detected. On second thought, forget
+the bottom of the hierarchy. Let's just start with a card outline, go one
+hierarchy level down, and then we should have the correct number of contours...
+except we might not be able to distinguish which shapes belong to which cards.
+Let's play around with it and see.
+
+Well, regardless of whether or not we can tell which card a shape belongs to
+based on hierarchy data (I doubt we can), we should still get a set of contours
+that's 1:1 with the actual shapes on the cards. We can check if a point on a
+shape contour is inside a card to determine ownership.
+
+Wow, that was completely wrong. THe whole point of this is that we have
+duplicate *nested* contours for everything, including card outlines. So the
+contours that are one level down from the top will most likely be duplicate card
+outlines, of which we have an unknown number.
