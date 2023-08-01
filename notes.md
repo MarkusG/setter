@@ -88,3 +88,12 @@ contour could tell us what kind of shape it is. Histogram time again.
 It looks like an epsilon of 0.6% of the arc length gives us good enough data
 *for this test image*. I'll have to see later on how it behaves on a more varied
 data set.
+
+Fuck it, trying to get a live histogram with matplotlib is way harder than it
+needs to be. It seems like live updating any other plot is relatively
+straightforward, but not for a histogram because we can't reset the underlying
+data on it. I'll just draw it in the terminal.
+
+My love of histograms has misled me. I might as well just try to classify the
+shapes and highlight them in the video output accordingly, and then I can see
+how accurate the polygon method is.
