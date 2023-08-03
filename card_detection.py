@@ -131,15 +131,21 @@ def recognize_cards(frame):
         for s in cards[c]:
             cv.drawContours(out, contours, s, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
             # epsilon = (cv.getTrackbarPos("epsilon", "output") / 10000) * cv.arcLength(contours[s], True)
-            epsilon = (230 / 10000) * cv.arcLength(contours[s], True)
-            approx = cv.approxPolyDP(contours[s], epsilon, True)
+            diamond_epsilon = (230 / 10000) * cv.arcLength(contours[s], True)
+            diamond_approx = cv.approxPolyDP(contours[s], diamond_epsilon, True)
+            pill_epsilon = (390 / 10000) * cv.arcLength(contours[s], True)
+            # pill_epsilon = (cv.getTrackbarPos("epsilon", "output") / 10000) * cv.arcLength(contours[s], True)
+            pill_approx = cv.approxPolyDP(contours[s], pill_epsilon, True)
             [x, y, w, h] = cv.boundingRect(contours[s])
-            cv.putText(out, str(len(approx)), (x, y), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv.LINE_AA)
-            if len(approx) < 5:
+            # cv.putText(out, str(len(approx)), (x, y), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv.LINE_AA)
+            if len(diamond_approx) < 5:
                 color = (0, 0, 255)
             else:
-                color = (255, 0, 0)
-            cv.drawContours(out, [approx], 0, color, 1, cv.LINE_8)
+                if len(pill_approx) > 5:
+                    color = (0, 255, 0)
+                else:
+                    color = (255, 0, 0)
+            cv.drawContours(out, contours, s, color, 1, cv.LINE_8)
 
     rows = canny_output.shape[0]
     circles = cv.HoughCircles(canny_output, cv.HOUGH_GRADIENT, 1, rows / 8, param1=100, param2=30, minRadius=1, maxRadius=30)

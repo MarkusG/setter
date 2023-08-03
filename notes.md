@@ -112,3 +112,6 @@ and then take the most frequently occurring classifications, we'll get reliable
 results.
 
 Dilating and then eroding lets us classify diamonds extremely consistently.
+
+By using two polygon approximation passes, we can identify all three shapes with
+decent consistency.
