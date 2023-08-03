@@ -133,15 +133,13 @@ def recognize_cards(frame):
             # epsilon = (cv.getTrackbarPos("epsilon", "output") / 10000) * cv.arcLength(contours[s], True)
             diamond_epsilon = (230 / 10000) * cv.arcLength(contours[s], True)
             diamond_approx = cv.approxPolyDP(contours[s], diamond_epsilon, True)
-            pill_epsilon = (390 / 10000) * cv.arcLength(contours[s], True)
-            # pill_epsilon = (cv.getTrackbarPos("epsilon", "output") / 10000) * cv.arcLength(contours[s], True)
+            pill_epsilon = (85 / 10000) * cv.arcLength(contours[s], True)
             pill_approx = cv.approxPolyDP(contours[s], pill_epsilon, True)
             [x, y, w, h] = cv.boundingRect(contours[s])
-            # cv.putText(out, str(len(approx)), (x, y), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv.LINE_AA)
             if len(diamond_approx) < 5:
                 color = (0, 0, 255)
             else:
-                if len(pill_approx) > 5:
+                if len(pill_approx) > 12:
                     color = (0, 255, 0)
                 else:
                     color = (255, 0, 0)
