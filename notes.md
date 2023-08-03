@@ -124,3 +124,7 @@ color/shade combination. One issue will be how to determine the bins. Lighting
 will affect exactly what the colors are, so I should find a way to adapt the
 bins to the image. Before worrying about that, though, let's just see if
 averaging the bounding boxes works.
+
+Averaging the entire bounding box produces too much variance, as different
+shapes fill up different proportions of the bounding box. I'll have to only
+average the pixels that make up the shapes themselves.

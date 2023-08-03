@@ -109,6 +109,9 @@ def recognize_cards(frame):
             pill_approx = cv.approxPolyDP(contours[s], pill_epsilon, True)
 
             [x, y, w, h] = cv.boundingRect(contours[s])
+            avg_color_row = np.average(frame[y:y+h, x:x+w], axis=0)
+            avg_color = np.average(avg_color_row, axis=0)
+            out[y:y+h, x:x+w] = avg_color
 
             if len(diamond_approx) < 5:
                 color = (0, 0, 255)
