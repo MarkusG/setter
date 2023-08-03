@@ -110,3 +110,5 @@ After dilating the edge detection output, our contours match a bit better and
 polygon approximation works well enough. I think if we take one second of frames
 and then take the most frequently occurring classifications, we'll get reliable
 results.
+
+Dilating and then eroding lets us classify diamonds extremely consistently.

@@ -44,6 +44,9 @@ def recognize_cards(frame):
     # cv.imshow("", canny_output)
     # cv.waitKey()
     canny_output = cv.dilate(canny_output, np.ones((5, 5)), iterations=1)
+    canny_output = cv.erode(canny_output, np.ones((5, 5)), iterations=1)
+    # cv.imshow("output", canny_output)
+    # return
 
     # card_contours, _ = cv.findContours(canny_output, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     # out = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
@@ -113,28 +116,27 @@ def recognize_cards(frame):
                 cards[i].append(j)
             break
 
-    polyPoints = []
-    for c in cards:
-        for s in cards[c]:
-            epsilon = cv.getTrackbarPos("epsilon", "output") / 100
-            approx = cv.approxPolyDP(contours[s], epsilon, True)
-            polyPoints.append(len(approx))
+    # polyPoints = []
+    # for c in cards:
+    #     for s in cards[c]:
+    #         epsilon = cv.getTrackbarPos("epsilon", "output") / 100
+    #         approx = cv.approxPolyDP(contours[s], epsilon, True)
+    #         polyPoints.append(len(approx))
 
-    draw_histogram(polyPoints)
+    # draw_histogram(polyPoints)
 
     out = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
     for c in cards:
         cv.drawContours(out, contours, c, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
         for s in cards[c]:
             cv.drawContours(out, contours, s, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
-            epsilon = (72 / 10000) * cv.arcLength(contours[s], True)
+            # epsilon = (cv.getTrackbarPos("epsilon", "output") / 10000) * cv.arcLength(contours[s], True)
+            epsilon = (230 / 10000) * cv.arcLength(contours[s], True)
             approx = cv.approxPolyDP(contours[s], epsilon, True)
             [x, y, w, h] = cv.boundingRect(contours[s])
             cv.putText(out, str(len(approx)), (x, y), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv.LINE_AA)
-            if len(approx) < 11:
+            if len(approx) < 5:
                 color = (0, 0, 255)
-            elif len(approx) < 15:
-                color = (0, 255, 0)
             else:
                 color = (255, 0, 0)
             cv.drawContours(out, [approx], 0, color, 1, cv.LINE_8)
@@ -160,7 +162,7 @@ def nothing(x):
 
 
 cv.namedWindow("output")
-cv.createTrackbar("epsilon", "output", 0, 300, nothing)
+cv.createTrackbar("epsilon", "output", 0, 1000, nothing)
 
 while True:
     cap = cv.VideoCapture("/dev/video2")
