@@ -115,3 +115,12 @@ Dilating and then eroding lets us classify diamonds extremely consistently.
 
 By using two polygon approximation passes, we can identify all three shapes with
 decent consistency.
+
+We can now identify the type and number of shapes on each card. All that's left
+is to identify the color and shading, and the CV portion will be done. For a
+first attempt, I'll get the bounding boxes of each shape, and then average all
+the pixels within it. Then I can bin them into one of 9 bins for each
+color/shade combination. One issue will be how to determine the bins. Lighting
+will affect exactly what the colors are, so I should find a way to adapt the
+bins to the image. Before worrying about that, though, let's just see if
+averaging the bounding boxes works.
