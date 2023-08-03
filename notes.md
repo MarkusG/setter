@@ -101,3 +101,7 @@ how accurate the polygon method is.
 It's not very accurate. The squiggles can be consistently identified, but
 diamonds and pills are a total toss-up. Maybe I can tweak the parameters and
 make it more reliable.
+
+Squiggles are the only shape that are non-convex. Now we just have to
+distinguish between diamonds and pills, which we should be able to do reliably
+with circle detection.
