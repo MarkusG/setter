@@ -1,17 +1,6 @@
 import cv2 as cv
 import numpy as np
 # import matplotlib.pyplot as plt
-import os
-
-
-def draw_histogram(array):
-    os.system('clear')
-    for i in range(50):
-        print("{0: >2d}: ".format(i), end='')
-        for j in array:
-            if j == i:
-                print("#", end='')
-        print()
 
 
 # given an index in the hierarchy, returns an array of all the contours at the
@@ -41,12 +30,10 @@ def recognize_cards(frame):
 
     # detect edges
     canny_output = cv.Canny(frame, 100, 200)
-    # cv.imshow("", canny_output)
-    # cv.waitKey()
+
+    # dilate and erode, to clean up the edges for contour finding
     canny_output = cv.dilate(canny_output, np.ones((5, 5)), iterations=1)
     canny_output = cv.erode(canny_output, np.ones((5, 5)), iterations=1)
-    # cv.imshow("output", canny_output)
-    # return
 
     # card_contours, _ = cv.findContours(canny_output, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     # out = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
@@ -75,15 +62,6 @@ def recognize_cards(frame):
     contours, hierarchy = cv.findContours(canny_output, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     if hierarchy is None:
         return
-
-    # show histogram of contour areas
-    # areas = []
-    # for c in contours:
-    #     areas.append(cv.contourArea(c))
-    #
-    # fig, axs = plt.subplots(tight_layout=True)
-    # axs.hist(areas, bins=20)
-    # plt.show()
 
     # get the index of a top-level contour (i.e. a card outline)
     top_idx = 0
@@ -116,15 +94,6 @@ def recognize_cards(frame):
                 cards[i].append(j)
             break
 
-    # polyPoints = []
-    # for c in cards:
-    #     for s in cards[c]:
-    #         epsilon = cv.getTrackbarPos("epsilon", "output") / 100
-    #         approx = cv.approxPolyDP(contours[s], epsilon, True)
-    #         polyPoints.append(len(approx))
-
-    # draw_histogram(polyPoints)
-
     out = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
     for c in cards:
         cv.drawContours(out, contours, c, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
@@ -144,19 +113,6 @@ def recognize_cards(frame):
                 else:
                     color = (255, 0, 0)
             cv.drawContours(out, contours, s, color, 1, cv.LINE_8)
-
-    rows = canny_output.shape[0]
-    circles = cv.HoughCircles(canny_output, cv.HOUGH_GRADIENT, 1, rows / 8, param1=100, param2=30, minRadius=1, maxRadius=30)
-
-    if circles is not None:
-        circles = np.uint16(np.around(circles))
-        for i in circles[0, :]:
-            center = (i[0], i[1])
-            # circle center
-            cv.circle(out, center, 1, (0, 100, 100), 3)
-            # circle outline
-            radius = i[2]
-            cv.circle(out, center, radius, (255, 0, 255), 3)
 
     cv.imshow("output", out)
 
