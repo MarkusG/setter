@@ -105,3 +105,8 @@ make it more reliable.
 Squiggles are the only shape that are non-convex. Now we just have to
 distinguish between diamonds and pills, which we should be able to do reliably
 with circle detection.
+
+After dilating the edge detection output, our contours match a bit better and
+polygon approximation works well enough. I think if we take one second of frames
+and then take the most frequently occurring classifications, we'll get reliable
+results.

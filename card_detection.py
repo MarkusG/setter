@@ -43,6 +43,30 @@ def recognize_cards(frame):
     canny_output = cv.Canny(frame, 100, 200)
     # cv.imshow("", canny_output)
     # cv.waitKey()
+    canny_output = cv.dilate(canny_output, np.ones((5, 5)), iterations=1)
+
+    # card_contours, _ = cv.findContours(canny_output, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    # out = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
+
+    # for i in range(len(card_contours)):
+    #     # cv.drawContours(out, card_contours, i, (255, 255, 255), 1, cv.LINE_8)
+    #     [x, y, w, h] = cv.boundingRect(card_contours[i])
+    #     x = x + 10
+    #     y = y + 10
+    #     w = w - 20
+    #     h = h - 20
+    #     out[y:y+h, x:x+w] = [255, 255, 255]
+    #     shape_contours, _ = cv.findContours(canny_output[y:y+h, x:x+w], cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    #     print(shape_contours)
+    #     for c in shape_contours:
+    #         for p in c:
+    #             p[0][0] = p[0][0] + x
+    #             p[0][1] = p[0][1] + y
+    #         cv.drawContours(out, [c], 0, (0, 0, 255), 1, cv.LINE_8)
+    #     cv.rectangle(out, (int(x), int(y)), (int(x + w), int(y + h)), (255, 0, 0), 1)
+    #     cv.putText(out, str(len(shape_contours)), (x, y), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv.LINE_AA)
+    # cv.imshow("output", out)
+    # return
 
     # find contours
     contours, hierarchy = cv.findContours(canny_output, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
@@ -77,7 +101,7 @@ def recognize_cards(frame):
             child_area = cv.contourArea(contours[current])
             # if the areas of the current contour and the next contour down in the
             # hierarchy are within 1%, then we consider them duplicates
-            if (current_area - child_area) / current_area < 0.01:
+            if (current_area - child_area) / current_area < 0.3:
                 cursor = current
                 continue
 
@@ -103,9 +127,10 @@ def recognize_cards(frame):
         cv.drawContours(out, contours, c, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
         for s in cards[c]:
             cv.drawContours(out, contours, s, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
-            # epsilon = 0.005 * cv.arcLength(contours[s], True)
-            epsilon = cv.getTrackbarPos("epsilon", "output") / 100
+            epsilon = (72 / 10000) * cv.arcLength(contours[s], True)
             approx = cv.approxPolyDP(contours[s], epsilon, True)
+            [x, y, w, h] = cv.boundingRect(contours[s])
+            cv.putText(out, str(len(approx)), (x, y), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv.LINE_AA)
             if len(approx) < 11:
                 color = (0, 0, 255)
             elif len(approx) < 15:
@@ -114,11 +139,8 @@ def recognize_cards(frame):
                 color = (255, 0, 0)
             cv.drawContours(out, [approx], 0, color, 1, cv.LINE_8)
 
-    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    gray = cv.medianBlur(gray, 5)
-
-    rows = gray.shape[0]
-    circles = cv.HoughCircles(gray, cv.HOUGH_GRADIENT, 1, rows / 8, param1=100, param2=30, minRadius=1, maxRadius=30)
+    rows = canny_output.shape[0]
+    circles = cv.HoughCircles(canny_output, cv.HOUGH_GRADIENT, 1, rows / 8, param1=100, param2=30, minRadius=1, maxRadius=30)
 
     if circles is not None:
         circles = np.uint16(np.around(circles))
