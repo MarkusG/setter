@@ -99,12 +99,17 @@ def recognize_cards(frame):
         cv.drawContours(out, contours, c, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
         for s in cards[c]:
             cv.drawContours(out, contours, s, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
-            # epsilon = (cv.getTrackbarPos("epsilon", "output") / 10000) * cv.arcLength(contours[s], True)
+            # get polygon approximations
+            # do two passes: one to distinguish diamonds from pills and
+            # squiggles, and one to distinguish between pills and squiggles
             diamond_epsilon = (230 / 10000) * cv.arcLength(contours[s], True)
             diamond_approx = cv.approxPolyDP(contours[s], diamond_epsilon, True)
+
             pill_epsilon = (85 / 10000) * cv.arcLength(contours[s], True)
             pill_approx = cv.approxPolyDP(contours[s], pill_epsilon, True)
+
             [x, y, w, h] = cv.boundingRect(contours[s])
+
             if len(diamond_approx) < 5:
                 color = (0, 0, 255)
             else:
@@ -122,7 +127,6 @@ def nothing(x):
 
 
 cv.namedWindow("output")
-cv.createTrackbar("epsilon", "output", 0, 1000, nothing)
 
 while True:
     cap = cv.VideoCapture("/dev/video2")
