@@ -31,6 +31,9 @@ def recognize_cards(frame):
     # detect edges
     canny_output = cv.Canny(frame, 100, 200)
 
+    # get blurred frame
+    blur = cv.GaussianBlur(frame, (15, 15), 0)
+
     # dilate and erode, to clean up the edges for contour finding
     canny_output = cv.dilate(canny_output, np.ones((5, 5)), iterations=1)
     canny_output = cv.erode(canny_output, np.ones((5, 5)), iterations=1)
@@ -108,10 +111,51 @@ def recognize_cards(frame):
             pill_epsilon = (85 / 10000) * cv.arcLength(contours[s], True)
             pill_approx = cv.approxPolyDP(contours[s], pill_epsilon, True)
 
+            edge_point = contours[s][0][0]
+            edge_color = blur[edge_point[1], edge_point[0]]
+            [[[edge_h, edge_s, edge_v]]] = cv.cvtColor(np.uint8([[edge_color]]), cv.COLOR_BGR2HSV)
+
             [x, y, w, h] = cv.boundingRect(contours[s])
-            avg_color_row = np.average(frame[y:y+h, x:x+w], axis=0)
-            avg_color = np.average(avg_color_row, axis=0)
-            out[y:y+h, x:x+w] = avg_color
+            center_color = blur[int(y + h/2), int(x + w/2)]
+            [[[center_h, center_s, center_v]]] = cv.cvtColor(np.uint8([[center_color]]), cv.COLOR_BGR2HSV)
+
+            if (center_h < 15 or center_h > 345):
+                out[y:y+h, x:x+w] = (0, 0, 255)
+            elif (center_h > 100 and center_h < 200):
+                out[y:y+h, x:x+w] = (255, 0, 255)
+            elif (center_h > 50 and center_h < 100):
+                out[y:y+h, x:x+w] = (0, 255, 0)
+            elif (edge_h < 10 or edge_h > 345) and edge_s > 40:
+                out[y:y+h, x:x+w] = (0, 0, 255)
+            elif (edge_h > 35 and edge_h < 100):
+                out[y:y+h, x:x+w] = (0, 255, 0)
+            else:
+                out[y:y+h, x:x+w] = (255, 0, 255)
+
+            center_label = "C: ({}, {}, {})".format(center_h, center_s, center_v)
+            edge_label = "E: ({}, {}, {})".format(edge_h, edge_s, edge_v)
+            cv.putText(out, center_label, (x, y), cv.FONT_HERSHEY_SIMPLEX, .3, (255, 255, 255), 1, cv.LINE_AA)
+            cv.putText(out, edge_label, (x, y + h), cv.FONT_HERSHEY_SIMPLEX, .3, (255, 255, 255), 1, cv.LINE_AA)
+
+            # mask = np.zeros_like(out)
+            # cv.drawContours(mask, contours, s, (255, 255, 255), -1)
+            # masked = np.where(mask == (255, 255, 255))
+            # avg_color = np.average(frame[masked[0], masked[1]], axis=0)
+            # [x, y, w, h] = cv.boundingRect(contours[s])
+            # out[y:y+h, x:x+w] = avg_color
+
+            # try:
+            #     [x, y, w, h] = cv.boundingRect(contours[s])
+            #     x = x + 10
+            #     y = y + 10
+            #     w = w - 20
+            #     h = h - 20
+            #     avg_color_row = np.average(frame[y:y+h, x:x+w], axis=0)
+            #     avg_color = np.average(avg_color_row, axis=0)
+            #     [x, y, w, h] = cv.boundingRect(contours[s])
+            #     out[y:y+h, x:x+w] = avg_color
+            # except:
+            #     pass
 
             if len(diamond_approx) < 5:
                 color = (0, 0, 255)
@@ -122,6 +166,7 @@ def recognize_cards(frame):
                     color = (255, 0, 0)
             cv.drawContours(out, contours, s, color, 1, cv.LINE_8)
 
+    cv.imshow("frame", frame)
     cv.imshow("output", out)
 
 

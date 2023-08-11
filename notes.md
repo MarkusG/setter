@@ -128,3 +128,14 @@ averaging the bounding boxes works.
 Averaging the entire bounding box produces too much variance, as different
 shapes fill up different proportions of the bounding box. I'll have to only
 average the pixels that make up the shapes themselves.
+
+I've come across many things that might aid me in the journey of classifying
+colors and shades. One is k-means clustering, which could help, but is pretty
+expensive (running the algorithm on the entire frame with k = 7 reduced the
+framerate to about 1 fps). For now, I've settled on sampling both the edge and
+center of each shape, and then thresholding. This can consistently classify
+colors, but I'll have to see if I can apply it to shades as well. It also just
+occurred to me that I should be sampling *each* edge point and then taking the
+average, not just the first one. I'll do that, and see if I can threshold to
+classify shading next time. I'll also have to see if the change in lighting
+tomorrow ruins the thresholds I've set, and if they need to be adaptive.
