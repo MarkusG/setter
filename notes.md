@@ -145,3 +145,10 @@ now consistently identify the color of shapes. All that remains is to determine
 the shadings. I am predicting (hoping, really) that this will be as simple as
 binning the saturations of the center of each shape. I look forward to finding
 out if that prediction is correct.
+
+Saturation thresholding does an okay job, but not quite good enough. Inspecting
+the images manually leads me to believe it should work, so maybe we need more
+pre-processing or there's an issue with how it's sampling the center pixels. And
+it seems like the color detection is getting less reliable too depending on
+ambient conditions. We've made some progress, but there are still some
+consistency issues to work out.
