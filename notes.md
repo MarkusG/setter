@@ -139,3 +139,9 @@ occurred to me that I should be sampling *each* edge point and then taking the
 average, not just the first one. I'll do that, and see if I can threshold to
 classify shading next time. I'll also have to see if the change in lighting
 tomorrow ruins the thresholds I've set, and if they need to be adaptive.
+
+Averaging the colors of the contour points proved to be successful, and we can
+now consistently identify the color of shapes. All that remains is to determine
+the shadings. I am predicting (hoping, really) that this will be as simple as
+binning the saturations of the center of each shape. I look forward to finding
+out if that prediction is correct.

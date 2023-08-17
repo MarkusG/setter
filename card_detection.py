@@ -111,51 +111,44 @@ def recognize_cards(frame):
             pill_epsilon = (85 / 10000) * cv.arcLength(contours[s], True)
             pill_approx = cv.approxPolyDP(contours[s], pill_epsilon, True)
 
-            edge_point = contours[s][0][0]
-            edge_color = blur[edge_point[1], edge_point[0]]
-            [[[edge_h, edge_s, edge_v]]] = cv.cvtColor(np.uint8([[edge_color]]), cv.COLOR_BGR2HSV)
+            # get the color of the shape (1997)
+            # average all the colors of the contour points
+            edge_points = contours[s][:, 0]
+            edge_b = 0
+            edge_g = 0
+            edge_r = 0
+            for p in edge_points:
+                edge_b = edge_b + blur[p[1], p[0], 0]
+                edge_g = edge_g + blur[p[1], p[0], 1]
+                edge_r = edge_r + blur[p[1], p[0], 2]
+            edge_b = int(edge_b / len(edge_points))
+            edge_g = int(edge_g / len(edge_points))
+            edge_r = int(edge_r / len(edge_points))
+            [[[edge_h, edge_s, edge_v]]] = cv.cvtColor(np.uint8([[[edge_b, edge_g, edge_r]]]), cv.COLOR_BGR2HSV)
 
             [x, y, w, h] = cv.boundingRect(contours[s])
+
+            # classify colors based on thresholds
+            # these are user-defined, as they may vary with lighting conditions
+            # perhaps we can make them adaptive in the future
+            red_thresh = cv.getTrackbarPos("Red threshold", "output")
+            green_thresh = cv.getTrackbarPos("Green threshold", "output")
+            purple_thresh = cv.getTrackbarPos("Purple threshold", "output")
+
+            if (edge_h < red_thresh):
+                out[y:y+h, x:x+w] = (0, 0, 255)
+            elif (edge_h > red_thresh and edge_h < green_thresh):
+                out[y:y+h, x:x+w] = (0, 255, 0)
+            elif (edge_h > green_thresh and edge_h < purple_thresh):
+                out[y:y+h, x:x+w] = (255, 0, 255)
+
             center_color = blur[int(y + h/2), int(x + w/2)]
             [[[center_h, center_s, center_v]]] = cv.cvtColor(np.uint8([[center_color]]), cv.COLOR_BGR2HSV)
-
-            if (center_h < 15 or center_h > 345):
-                out[y:y+h, x:x+w] = (0, 0, 255)
-            elif (center_h > 100 and center_h < 200):
-                out[y:y+h, x:x+w] = (255, 0, 255)
-            elif (center_h > 50 and center_h < 100):
-                out[y:y+h, x:x+w] = (0, 255, 0)
-            elif (edge_h < 10 or edge_h > 345) and edge_s > 40:
-                out[y:y+h, x:x+w] = (0, 0, 255)
-            elif (edge_h > 35 and edge_h < 100):
-                out[y:y+h, x:x+w] = (0, 255, 0)
-            else:
-                out[y:y+h, x:x+w] = (255, 0, 255)
 
             center_label = "C: ({}, {}, {})".format(center_h, center_s, center_v)
             edge_label = "E: ({}, {}, {})".format(edge_h, edge_s, edge_v)
             cv.putText(out, center_label, (x, y), cv.FONT_HERSHEY_SIMPLEX, .3, (255, 255, 255), 1, cv.LINE_AA)
             cv.putText(out, edge_label, (x, y + h), cv.FONT_HERSHEY_SIMPLEX, .3, (255, 255, 255), 1, cv.LINE_AA)
-
-            # mask = np.zeros_like(out)
-            # cv.drawContours(mask, contours, s, (255, 255, 255), -1)
-            # masked = np.where(mask == (255, 255, 255))
-            # avg_color = np.average(frame[masked[0], masked[1]], axis=0)
-            # [x, y, w, h] = cv.boundingRect(contours[s])
-            # out[y:y+h, x:x+w] = avg_color
-
-            # try:
-            #     [x, y, w, h] = cv.boundingRect(contours[s])
-            #     x = x + 10
-            #     y = y + 10
-            #     w = w - 20
-            #     h = h - 20
-            #     avg_color_row = np.average(frame[y:y+h, x:x+w], axis=0)
-            #     avg_color = np.average(avg_color_row, axis=0)
-            #     [x, y, w, h] = cv.boundingRect(contours[s])
-            #     out[y:y+h, x:x+w] = avg_color
-            # except:
-            #     pass
 
             if len(diamond_approx) < 5:
                 color = (0, 0, 255)
@@ -175,6 +168,9 @@ def nothing(x):
 
 
 cv.namedWindow("output")
+cv.createTrackbar("Red threshold", "output", 18, 360, nothing)
+cv.createTrackbar("Green threshold", "output", 93, 360, nothing)
+cv.createTrackbar("Purple threshold", "output", 220, 360, nothing)
 
 while True:
     cap = cv.VideoCapture("/dev/video2")
