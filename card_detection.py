@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+import math
 # import matplotlib.pyplot as plt
 
 
@@ -99,6 +100,8 @@ def recognize_cards(frame):
 
     out = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
     for c in cards:
+        [card_x, card_y, card_w, card_h] = cv.boundingRect(contours[c])
+        card_background = blur[card_y + int(card_h / 10), card_x + int(card_w / 2)]
         cv.drawContours(out, contours, c, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
         for s in cards[c]:
             cv.drawContours(out, contours, s, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
@@ -146,19 +149,31 @@ def recognize_cards(frame):
 
             center_color = blur[int(y + h/2), int(x + w/2)]
             [[[center_h, center_s, center_v]]] = cv.cvtColor(np.uint8([[center_color]]), cv.COLOR_BGR2HSV)
+            [[[card_h, card_s, card_v]]] = cv.cvtColor(np.uint8([[card_background]]), cv.COLOR_BGR2HSV)
 
             # out[y:y+h, x:x+w] = center_color
 
-            cv.putText(out, "({}, {}, {})".format(center_h, center_s, center_v), (x, y), cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv.LINE_AA)
+            d_h = abs(int(center_h) - int(card_h))
+            d_s = abs(int(center_s) - int(card_s))
+            d_v = abs(int(center_v) - int(card_v))
 
-            if (center_h > 10 and center_h < 100 and center_s < 100):
+            # cv.putText(out, "({}, {}, {})".format(d_h, d_s, d_v), (x, y), cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv.LINE_AA)
+
+            # it's been a while, metric spaces. i thought i'd never see you again
+            d = int(math.sqrt(d_h ** 2 + d_s ** 2 + d_v ** 2))
+            cv.putText(out, str(d), (x, y), cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv.LINE_AA)
+
+            if (d < 30):
                 cv.putText(out, "empty", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+            elif (d < 180):
+                cv.putText(out, "striped", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+            else:
+                cv.putText(out, "solid", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+            # elif (d_s < 100):
+            #     cv.putText(out, "empty", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
 
-            # if (center_s > 100):
-            #     cv.putText(out, "solid", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
-            # elif (center_s > 20 or (center_s > 10 and center_h > 100)):
-            #     cv.putText(out, "striped", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
-            # else:
+
+            # if (center_h > 10 and center_h < 100 and center_s < 100):
             #     cv.putText(out, "empty", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
 
             if len(diamond_approx) < 5:

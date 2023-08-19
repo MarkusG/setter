@@ -156,3 +156,16 @@ consistency issues to work out.
 Let's still threshold based on the HSV of the center, but build up from just
 identifying empty shapes. I've been able to do that, so now let's see if we can
 distinguish stripes from solids.
+
+Actually, our real problem is that the colors are varying based on the cards'
+positions, because my lighting is uneven. Let's instead filter based on the
+difference between the shape's center color and the white of the card.
+
+Oh yeah, I get to talk about metric spaces now. Rather than worrying about each
+component of the color individually, we can use a metric combining all of them
+to get the distance between the center color and the background color, and then
+filter based on that to determine shading. It works pretty well. There are some
+weird issues with certain types of cards, specifically empty purple pills, but
+the pre-processing I found to fix that will shock you! I just rotate the camera
+so the cards are oriented a different way, and it seems to work way better.
+Isn't that neat?
