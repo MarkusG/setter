@@ -142,17 +142,24 @@ def recognize_cards(frame):
             elif (edge_h > green_thresh and edge_h < purple_thresh):
                 out[y:y+h, x:x+w] = (255, 0, 255)
 
+            # out[y:y+h, x:x+w] = (edge_b, edge_g, edge_r)
+
             center_color = blur[int(y + h/2), int(x + w/2)]
             [[[center_h, center_s, center_v]]] = cv.cvtColor(np.uint8([[center_color]]), cv.COLOR_BGR2HSV)
 
+            # out[y:y+h, x:x+w] = center_color
+
             cv.putText(out, "({}, {}, {})".format(center_h, center_s, center_v), (x, y), cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv.LINE_AA)
 
-            if (center_s > 100):
-                cv.putText(out, "solid", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
-            elif (center_s > 20 or (center_s > 10 and center_h > 100)):
-                cv.putText(out, "striped", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
-            else:
+            if (center_h > 10 and center_h < 100 and center_s < 100):
                 cv.putText(out, "empty", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+
+            # if (center_s > 100):
+            #     cv.putText(out, "solid", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+            # elif (center_s > 20 or (center_s > 10 and center_h > 100)):
+            #     cv.putText(out, "striped", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+            # else:
+            #     cv.putText(out, "empty", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
 
             if len(diamond_approx) < 5:
                 color = (0, 0, 255)

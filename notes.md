@@ -152,3 +152,7 @@ pre-processing or there's an issue with how it's sampling the center pixels. And
 it seems like the color detection is getting less reliable too depending on
 ambient conditions. We've made some progress, but there are still some
 consistency issues to work out.
+
+Let's still threshold based on the HSV of the center, but build up from just
+identifying empty shapes. I've been able to do that, so now let's see if we can
+distinguish stripes from solids.
