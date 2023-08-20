@@ -153,14 +153,12 @@ def recognize_cards(frame):
 
             # out[y:y+h, x:x+w] = center_color
 
-            d_h = abs(int(center_h) - int(card_h))
-            d_s = abs(int(center_s) - int(card_s))
-            d_v = abs(int(center_v) - int(card_v))
-
-            # cv.putText(out, "({}, {}, {})".format(d_h, d_s, d_v), (x, y), cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv.LINE_AA)
+            d_b = abs(int(center_color[0]) - int(card_background[0]))
+            d_g = abs(int(center_color[1]) - int(card_background[1]))
+            d_r = abs(int(center_color[2]) - int(card_background[2]))
 
             # it's been a while, metric spaces. i thought i'd never see you again
-            d = int(math.sqrt(d_h ** 2 + d_s ** 2 + d_v ** 2))
+            d = int(math.sqrt(d_b ** 2 + d_g ** 2 + d_r ** 2))
             cv.putText(out, str(d), (x, y), cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv.LINE_AA)
 
             if (d < 30):
@@ -169,12 +167,6 @@ def recognize_cards(frame):
                 cv.putText(out, "striped", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
             else:
                 cv.putText(out, "solid", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
-            # elif (d_s < 100):
-            #     cv.putText(out, "empty", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
-
-
-            # if (center_h > 10 and center_h < 100 and center_s < 100):
-            #     cv.putText(out, "empty", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
 
             if len(diamond_approx) < 5:
                 color = (0, 0, 255)

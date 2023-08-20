@@ -169,3 +169,7 @@ weird issues with certain types of cards, specifically empty purple pills, but
 the pre-processing I found to fix that will shock you! I just rotate the camera
 so the cards are oriented a different way, and it seems to work way better.
 Isn't that neat?
+
+HSV is a circle, and if we have the case where one color has hue 2 and one has
+hue 253, that would produce a very large distance when in reality the colors are
+similar. Keeping the colors in BGR avoids this issue.
