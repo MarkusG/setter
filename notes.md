@@ -178,3 +178,7 @@ I decided to take a quick break from the CV part of the project to benchmark a
 couple of methods for determining whether three cards form a set. My clever
 bitwise implementation is actually slower than the more straightforward
 add-and-take-mod-3 approach, but it is more memory efficient. I'll cover both.
+
+I was going to make the edge color detection use the distance function as well,
+but it seems like thresholding actually works better in that context, so I'll
+keep it.
