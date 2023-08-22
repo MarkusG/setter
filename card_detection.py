@@ -46,29 +46,6 @@ def recognize_cards(frame):
     canny_output = cv.dilate(canny_output, np.ones((5, 5)), iterations=1)
     canny_output = cv.erode(canny_output, np.ones((5, 5)), iterations=1)
 
-    # card_contours, _ = cv.findContours(canny_output, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-    # out = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
-
-    # for i in range(len(card_contours)):
-    #     # cv.drawContours(out, card_contours, i, (255, 255, 255), 1, cv.LINE_8)
-    #     [x, y, w, h] = cv.boundingRect(card_contours[i])
-    #     x = x + 10
-    #     y = y + 10
-    #     w = w - 20
-    #     h = h - 20
-    #     out[y:y+h, x:x+w] = [255, 255, 255]
-    #     shape_contours, _ = cv.findContours(canny_output[y:y+h, x:x+w], cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-    #     print(shape_contours)
-    #     for c in shape_contours:
-    #         for p in c:
-    #             p[0][0] = p[0][0] + x
-    #             p[0][1] = p[0][1] + y
-    #         cv.drawContours(out, [c], 0, (0, 0, 255), 1, cv.LINE_8)
-    #     cv.rectangle(out, (int(x), int(y)), (int(x + w), int(y + h)), (255, 0, 0), 1)
-    #     cv.putText(out, str(len(shape_contours)), (x, y), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv.LINE_AA)
-    # cv.imshow("output", out)
-    # return
-
     # find contours
     contours, hierarchy = cv.findContours(canny_output, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     if hierarchy is None:
@@ -152,13 +129,9 @@ def recognize_cards(frame):
             elif (edge_h > green_thresh and edge_h < purple_thresh):
                 out[y:y+h, x:x+w] = (255, 0, 255)
 
-            # out[y:y+h, x:x+w] = (edge_b, edge_g, edge_r)
-
             center_color = blur[int(y + h/2), int(x + w/2)]
             [[[center_h, center_s, center_v]]] = cv.cvtColor(np.uint8([[center_color]]), cv.COLOR_BGR2HSV)
             [[[card_h, card_s, card_v]]] = cv.cvtColor(np.uint8([[card_background]]), cv.COLOR_BGR2HSV)
-
-            # out[y:y+h, x:x+w] = center_color
 
             # it's been a while, metric spaces. i thought i'd never see you again
             d = distance_3d(center_color, card_background)
