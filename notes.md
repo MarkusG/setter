@@ -173,3 +173,8 @@ Isn't that neat?
 HSV is a circle, and if we have the case where one color has hue 2 and one has
 hue 253, that would produce a very large distance when in reality the colors are
 similar. Keeping the colors in BGR avoids this issue.
+
+I decided to take a quick break from the CV part of the project to benchmark a
+couple of methods for determining whether three cards form a set. My clever
+bitwise implementation is actually slower than the more straightforward
+add-and-take-mod-3 approach, but it is more memory efficient. I'll cover both.
