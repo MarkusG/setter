@@ -4,6 +4,13 @@ import math
 # import matplotlib.pyplot as plt
 
 
+def distance_3d(x1, y1, z1, x2, y2, z2):
+    dx = int(x1) - int(x2)
+    dy = int(y1) - int(y2)
+    dz = int(z1) - int(z2)
+    return int(math.sqrt(dx ** 2 + dy ** 2 + dz ** 2))
+
+
 # given an index in the hierarchy, returns an array of all the contours at the
 # same hierarchy level
 def get_neighbors(idx, hierarchy):
@@ -101,7 +108,7 @@ def recognize_cards(frame):
     out = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
     for c in cards:
         [card_x, card_y, card_w, card_h] = cv.boundingRect(contours[c])
-        card_background = blur[card_y + int(card_h / 10), card_x + int(card_w / 2)]
+        card_background = blur[card_y + int(card_h / 10), card_x + int(card_w / 10)]
         cv.drawContours(out, contours, c, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
         for s in cards[c]:
             cv.drawContours(out, contours, s, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
@@ -153,12 +160,9 @@ def recognize_cards(frame):
 
             # out[y:y+h, x:x+w] = center_color
 
-            d_b = abs(int(center_color[0]) - int(card_background[0]))
-            d_g = abs(int(center_color[1]) - int(card_background[1]))
-            d_r = abs(int(center_color[2]) - int(card_background[2]))
-
             # it's been a while, metric spaces. i thought i'd never see you again
-            d = int(math.sqrt(d_b ** 2 + d_g ** 2 + d_r ** 2))
+            d = distance_3d(center_color[0], center_color[1], center_color[2],
+                            card_background[0], card_background[1], card_background[2])
             cv.putText(out, str(d), (x, y), cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv.LINE_AA)
 
             if (d < 30):
