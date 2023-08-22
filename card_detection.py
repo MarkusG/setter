@@ -4,10 +4,10 @@ import math
 # import matplotlib.pyplot as plt
 
 
-def distance_3d(x1, y1, z1, x2, y2, z2):
-    dx = int(x1) - int(x2)
-    dy = int(y1) - int(y2)
-    dz = int(z1) - int(z2)
+def distance_3d(a, b):
+    dx = int(a[0]) - int(b[0])
+    dy = int(a[1]) - int(b[1])
+    dz = int(a[2]) - int(b[2])
     return int(math.sqrt(dx ** 2 + dy ** 2 + dz ** 2))
 
 
@@ -161,8 +161,7 @@ def recognize_cards(frame):
             # out[y:y+h, x:x+w] = center_color
 
             # it's been a while, metric spaces. i thought i'd never see you again
-            d = distance_3d(center_color[0], center_color[1], center_color[2],
-                            card_background[0], card_background[1], card_background[2])
+            d = distance_3d(center_color, card_background)
             cv.putText(out, str(d), (x, y), cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv.LINE_AA)
 
             if (d < 30):
