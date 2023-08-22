@@ -182,3 +182,8 @@ add-and-take-mod-3 approach, but it is more memory efficient. I'll cover both.
 I was going to make the edge color detection use the distance function as well,
 but it seems like thresholding actually works better in that context, so I'll
 keep it.
+
+I'm calling the CV part of the project here. The only significant inconsistency
+is in shape recognition, and it's minimal, especially with proper framing and
+reduced camera shake. Now all that's left is to pick out which subsets of cards
+form sets.

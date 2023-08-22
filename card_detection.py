@@ -1,7 +1,6 @@
 import cv2 as cv
 import numpy as np
 import math
-# import matplotlib.pyplot as plt
 
 
 def distance_3d(a, b):
@@ -86,9 +85,14 @@ def recognize_cards(frame):
     for c in cards:
         [card_x, card_y, card_w, card_h] = cv.boundingRect(contours[c])
         card_background = blur[card_y + int(card_h / 10), card_x + int(card_w / 10)]
+
+        count = len(cards[c])
+        shape = ''
+        color = ''
+        shade = ''
+
         cv.drawContours(out, contours, c, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
         for s in cards[c]:
-            cv.drawContours(out, contours, s, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
             # get polygon approximations
             # do two passes: one to distinguish diamonds from pills and
             # squiggles, and one to distinguish between pills and squiggles
@@ -97,6 +101,14 @@ def recognize_cards(frame):
 
             pill_epsilon = (85 / 10000) * cv.arcLength(contours[s], True)
             pill_approx = cv.approxPolyDP(contours[s], pill_epsilon, True)
+
+            if len(diamond_approx) < 5:
+                shape = 'diamond'
+            else:
+                if len(pill_approx) > 12:
+                    shape = 'squiggle'
+                else:
+                    shape = 'pill'
 
             # get the color of the shape (1997)
             # average all the colors of the contour points
@@ -123,11 +135,11 @@ def recognize_cards(frame):
             purple_thresh = cv.getTrackbarPos("Purple threshold", "output")
 
             if (edge_h < red_thresh):
-                out[y:y+h, x:x+w] = (0, 0, 255)
+                color = 'red'
             elif (edge_h > red_thresh and edge_h < green_thresh):
-                out[y:y+h, x:x+w] = (0, 255, 0)
+                color = 'green'
             elif (edge_h > green_thresh and edge_h < purple_thresh):
-                out[y:y+h, x:x+w] = (255, 0, 255)
+                color = 'purple'
 
             center_color = blur[int(y + h/2), int(x + w/2)]
             [[[center_h, center_s, center_v]]] = cv.cvtColor(np.uint8([[center_color]]), cv.COLOR_BGR2HSV)
@@ -135,23 +147,22 @@ def recognize_cards(frame):
 
             # it's been a while, metric spaces. i thought i'd never see you again
             d = distance_3d(center_color, card_background)
-            cv.putText(out, str(d), (x, y), cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv.LINE_AA)
 
             if (d < 30):
-                cv.putText(out, "empty", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+                shade = 'empty'
             elif (d < 180):
-                cv.putText(out, "striped", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+                shade = 'striped'
             else:
-                cv.putText(out, "solid", (x + int(w / 2), y + int(h / 2)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+                shade = 'solid'
 
-            if len(diamond_approx) < 5:
-                color = (0, 0, 255)
-            else:
-                if len(pill_approx) > 12:
-                    color = (0, 255, 0)
-                else:
-                    color = (255, 0, 0)
-            cv.drawContours(out, contours, s, color, 1, cv.LINE_8)
+        count_pos = (int(card_x + card_w / 10), int(card_y + card_h / 10) + 20)
+        cv.putText(out, str(count), count_pos, cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+        shape_pos = (int(card_x + card_w / 10), int(card_y + card_h / 10) + 40)
+        cv.putText(out, str(shape), shape_pos, cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+        color_pos = (int(card_x + card_w / 10), int(card_y + card_h / 10) + 60)
+        cv.putText(out, str(color), color_pos, cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+        shade_pos = (int(card_x + card_w / 10), int(card_y + card_h / 10) + 80)
+        cv.putText(out, str(shade), shade_pos, cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
 
     cv.imshow("output", out)
     cv.imshow("frame", frame)
