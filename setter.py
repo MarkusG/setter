@@ -1,6 +1,26 @@
 import cv2 as cv
 import numpy as np
 import math
+import types
+
+
+# constants for representing card attributes as integers
+consts = types.SimpleNamespace()
+consts.ONE = 0
+consts.TWO = 1
+consts.THREE = 2
+
+consts.DIAMOND = 0
+consts.PILL = 1
+consts.SQUIGGLE = 2
+
+consts.RED = 0
+consts.PURPLE = 1
+consts.GREEN = 2
+
+consts.EMPTY = 0
+consts.STRIPED = 1
+consts.SOLID = 2
 
 
 def distance_3d(a, b):
@@ -86,10 +106,18 @@ def recognize_cards(frame):
         [card_x, card_y, card_w, card_h] = cv.boundingRect(contours[c])
         card_background = blur[card_y + int(card_h / 10), card_x + int(card_w / 10)]
 
-        count = len(cards[c])
-        shape = ''
-        color = ''
-        shade = ''
+        count = -1
+        match len(cards[c]):
+            case 1:
+                count = consts.ONE
+            case 2:
+                count = consts.TWO
+            case 3:
+                count = consts.THREE
+
+        shape = -1
+        color = -1
+        shade = -1
 
         cv.drawContours(out, contours, c, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
         for s in cards[c]:
@@ -103,12 +131,12 @@ def recognize_cards(frame):
             pill_approx = cv.approxPolyDP(contours[s], pill_epsilon, True)
 
             if len(diamond_approx) < 5:
-                shape = 'diamond'
+                shape = consts.DIAMOND
             else:
                 if len(pill_approx) > 12:
-                    shape = 'squiggle'
+                    shape = consts.SQUIGGLE
                 else:
-                    shape = 'pill'
+                    shape = consts.PILL
 
             # get the color of the shape (1997)
             # average all the colors of the contour points
@@ -135,11 +163,11 @@ def recognize_cards(frame):
             purple_thresh = cv.getTrackbarPos("Purple threshold", "output")
 
             if (edge_h < red_thresh):
-                color = 'red'
+                color = consts.RED
             elif (edge_h > red_thresh and edge_h < green_thresh):
-                color = 'green'
+                color = consts.GREEN
             elif (edge_h > green_thresh and edge_h < purple_thresh):
-                color = 'purple'
+                color = consts.PURPLE
 
             center_color = blur[int(y + h/2), int(x + w/2)]
             [[[center_h, center_s, center_v]]] = cv.cvtColor(np.uint8([[center_color]]), cv.COLOR_BGR2HSV)
@@ -149,20 +177,59 @@ def recognize_cards(frame):
             d = distance_3d(center_color, card_background)
 
             if (d < 30):
-                shade = 'empty'
+                shade = consts.EMPTY
             elif (d < 180):
-                shade = 'striped'
+                shade = consts.STRIPED
             else:
-                shade = 'solid'
+                shade = consts.SOLID
 
         count_pos = (int(card_x + card_w / 10), int(card_y + card_h / 10) + 20)
-        cv.putText(out, str(count), count_pos, cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+        match count:
+            case consts.ONE:
+                count_label = '1'
+            case consts.TWO:
+                count_label = '2'
+            case consts.THREE:
+                count_label = '3'
+            case _:
+                count_label = 'count error'
+        cv.putText(out, count_label, count_pos, cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+
         shape_pos = (int(card_x + card_w / 10), int(card_y + card_h / 10) + 40)
-        cv.putText(out, str(shape), shape_pos, cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+        match shape:
+            case consts.DIAMOND:
+                shape_label = 'diamond'
+            case consts.PILL:
+                shape_label = 'pill'
+            case consts.SQUIGGLE:
+                shape_label = 'squiggle'
+            case _:
+                shape_label = 'shape error'
+        cv.putText(out, shape_label, shape_pos, cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+
         color_pos = (int(card_x + card_w / 10), int(card_y + card_h / 10) + 60)
-        cv.putText(out, str(color), color_pos, cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+        match color:
+            case consts.RED:
+                color_label = 'red'
+            case consts.GREEN:
+                color_label = 'green'
+            case consts.PURPLE:
+                color_label = 'purple'
+            case _:
+                color_label = 'color error'
+        cv.putText(out, color_label, color_pos, cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+
         shade_pos = (int(card_x + card_w / 10), int(card_y + card_h / 10) + 80)
-        cv.putText(out, str(shade), shade_pos, cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
+        match shade:
+            case consts.SOLID:
+                shade_label = 'solid'
+            case consts.STRIPED:
+                shade_label = 'striped'
+            case consts.EMPTY:
+                shade_label = 'empty'
+            case _:
+                shade_label = 'shade error'
+        cv.putText(out, shade_label, shade_pos, cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
 
     cv.imshow("output", out)
     cv.imshow("frame", frame)
