@@ -101,8 +101,10 @@ def recognize_cards(frame):
                 cards[i].append(j)
             break
 
+    card_output = []
+
     out = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
-    for c in cards:
+    for c_idx, c in enumerate(cards):
         [card_x, card_y, card_w, card_h] = cv.boundingRect(contours[c])
         card_background = blur[card_y + int(card_h / 10), card_x + int(card_w / 10)]
 
@@ -118,6 +120,8 @@ def recognize_cards(frame):
         shape = -1
         color = -1
         shade = -1
+
+        card_output.append([count, shape, color, shade])
 
         cv.drawContours(out, contours, c, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
         for s in cards[c]:
@@ -231,8 +235,11 @@ def recognize_cards(frame):
                 shade_label = 'shade error'
         cv.putText(out, shade_label, shade_pos, cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
 
+        card_output[c_idx] = [count, shape, color, shade]
+
     cv.imshow("output", out)
     cv.imshow("frame", frame)
+    return card_output
 
 
 def nothing(x):
@@ -250,7 +257,7 @@ while True:
     while True:
         ret, frame = cap.read()
         if ret:
-            recognize_cards(frame)
+            cards = recognize_cards(frame)
             if cv.waitKey(1) == 27:
                 close = 1
                 break
