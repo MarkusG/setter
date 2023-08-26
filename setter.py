@@ -53,6 +53,10 @@ def get_neighbors(idx, hierarchy):
     return neighbors
 
 
+def is_set_modulo(a, b, c):
+    print(not np.any((a + b + c) % 3))
+
+
 def recognize_cards(frame):
 
     # detect edges
@@ -121,7 +125,7 @@ def recognize_cards(frame):
         color = -1
         shade = -1
 
-        card_output.append([count, shape, color, shade])
+        card_output.append(np.empty(4, dtype=int))
 
         cv.drawContours(out, contours, c, (255, 255, 255), 1, cv.LINE_8, hierarchy, 0)
         for s in cards[c]:
@@ -235,7 +239,10 @@ def recognize_cards(frame):
                 shade_label = 'shade error'
         cv.putText(out, shade_label, shade_pos, cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
 
-        card_output[c_idx] = [count, shape, color, shade]
+        card_output[c_idx][0] = count
+        card_output[c_idx][1] = shape
+        card_output[c_idx][2] = color
+        card_output[c_idx][3] = shade
 
     cv.imshow("output", out)
     cv.imshow("frame", frame)
@@ -258,6 +265,8 @@ while True:
         ret, frame = cap.read()
         if ret:
             cards = recognize_cards(frame)
+            if (cards is not None and len(cards) > 2):
+                is_set_modulo(cards[0], cards[1], cards[2])
             if cv.waitKey(1) == 27:
                 close = 1
                 break
