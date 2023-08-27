@@ -2,6 +2,7 @@ import cv2 as cv
 import numpy as np
 import math
 import types
+from itertools import combinations
 
 
 # constants for representing card attributes as integers
@@ -59,7 +60,7 @@ def get_neighbors(idx, hierarchy):
 
 
 def is_set_modulo(a, b, c):
-    print(not np.any((a + b + c) % 3))
+    return not np.any((a + b + c) % 3)
 
 
 def recognize_cards(frame):
@@ -249,7 +250,6 @@ def recognize_cards(frame):
         cards_output[c_idx].attributes = np.array([count, shape, color, shade])
 
     cv.imshow("output", out)
-    cv.imshow("frame", frame)
     return cards_output
 
 
@@ -269,11 +269,19 @@ while True:
         ret, frame = cap.read()
         if ret:
             cards = recognize_cards(frame)
-            for c in cards:
-                print(c.contour)
-                print(c.attributes)
-            # if (cards is not None and len(cards) > 2):
-            #     is_set_modulo(cards[0], cards[1], cards[2])
+            if cards is None:
+                continue
+
+            for a, b, c in combinations(cards, 3):
+                if is_set_modulo(a.attributes, b.attributes, c.attributes):
+                    cv.drawContours(frame, [a.contour], 0, (255, 0, 255), 4, cv.LINE_8, None, 0)
+                    cv.drawContours(frame, [b.contour], 0, (255, 0, 255), 4, cv.LINE_8, None, 0)
+                    cv.drawContours(frame, [c.contour], 0, (255, 0, 255), 4, cv.LINE_8, None, 0)
+                    print('set! {} {} {}'.format(a.attributes, b.attributes, c.attributes))
+                    continue
+
+            cv.imshow("frame", frame)
+
             if cv.waitKey(1) == 27:
                 close = 1
                 break

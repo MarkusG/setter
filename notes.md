@@ -187,3 +187,9 @@ I'm calling the CV part of the project here. The only significant inconsistency
 is in shape recognition, and it's minimal, especially with proper framing and
 reduced camera shake. Now all that's left is to pick out which subsets of cards
 form sets.
+
+I've completed the first pass of recognizing sets and highlighting them in the
+video output. It seems like too many cards are getting highlighted in the output
+and I'm not sure why. I also need to make sure that the cards get ordered by
+position so that collections of cards with multiple sets don't cause the output
+to jump around from set to set between frames.
