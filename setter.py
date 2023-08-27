@@ -263,7 +263,7 @@ cv.createTrackbar("Green threshold", "output", 93, 360, nothing)
 cv.createTrackbar("Purple threshold", "output", 220, 360, nothing)
 
 while True:
-    cap = cv.VideoCapture("/dev/video2")
+    cap = cv.VideoCapture("/dev/video0")
     close = 0
     while True:
         ret, frame = cap.read()
@@ -277,8 +277,7 @@ while True:
                     cv.drawContours(frame, [a.contour], 0, (255, 0, 255), 4, cv.LINE_8, None, 0)
                     cv.drawContours(frame, [b.contour], 0, (255, 0, 255), 4, cv.LINE_8, None, 0)
                     cv.drawContours(frame, [c.contour], 0, (255, 0, 255), 4, cv.LINE_8, None, 0)
-                    print('set! {} {} {}'.format(a.attributes, b.attributes, c.attributes))
-                    continue
+                    break
 
             cv.imshow("frame", frame)
 
