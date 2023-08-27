@@ -274,9 +274,9 @@ while True:
 
             for a, b, c in combinations(cards, 3):
                 if is_set_modulo(a.attributes, b.attributes, c.attributes):
-                    cv.drawContours(frame, [a.contour], 0, (255, 0, 255), 4, cv.LINE_8, None, 0)
-                    cv.drawContours(frame, [b.contour], 0, (255, 0, 255), 4, cv.LINE_8, None, 0)
-                    cv.drawContours(frame, [c.contour], 0, (255, 0, 255), 4, cv.LINE_8, None, 0)
+                    cv.drawContours(frame, [a.contour], 0, (0, 255, 255), 4, cv.LINE_8, None, 0)
+                    cv.drawContours(frame, [b.contour], 0, (0, 255, 255), 4, cv.LINE_8, None, 0)
+                    cv.drawContours(frame, [c.contour], 0, (0, 255, 255), 4, cv.LINE_8, None, 0)
                     break
 
             cv.imshow("frame", frame)
