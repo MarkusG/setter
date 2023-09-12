@@ -246,7 +246,6 @@ def recognize_cards(frame):
                 shade_label = 'shade error'
         cv.putText(out, shade_label, shade_pos, cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv.LINE_AA)
 
-        cards_output[c_idx].contour = contours[c]
         cards_output[c_idx].attributes = np.array([count, shape, color, shade])
 
     cv.imshow("output", out)
