@@ -18,7 +18,8 @@ for i in range(100):
     result = result + timeit.timeit(
             lambda: is_set_bitwise(a, b, c),
             number=10000)
-print(result / 100)
+print("bitwise")
+print((result / 100) / 10000)
 
 result = 0
 for i in range(100):
@@ -34,4 +35,5 @@ for i in range(100):
     result = result + timeit.timeit(
             lambda: is_set_modulo(a, b, c, d, e, f, g, h, i),
             number=10000)
-print(result / 100)
+print("modulo")
+print((result / 100) / 10000)
